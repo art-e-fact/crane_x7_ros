@@ -35,7 +35,7 @@ def generate_launch_description():
         get_package_share_directory('crane_x7_gazebo'), 'gui', 'gui.config')
     # -r オプションで起動時にシミュレーションをスタートしないと、コントローラが起動しない
     ign_gazebo = ExecuteProcess(
-            cmd=['ign gazebo -r', world_file, '--gui-config', gui_config],
+            cmd=['ign gazebo -r', world_file, ' -s ', '--gui-config', gui_config],
             output='screen',
             additional_env=env,
             shell=True
