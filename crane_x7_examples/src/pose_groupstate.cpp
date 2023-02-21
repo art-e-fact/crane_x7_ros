@@ -41,12 +41,15 @@ int main(int argc, char ** argv)
 
   move_group_arm.setNamedTarget("home");
   move_group_arm.move();
+  RCLCPP_INFO(move_group_arm_node->get_logger(), "Pose A reached!");
 
   move_group_arm.setNamedTarget("vertical");
   move_group_arm.move();
+  RCLCPP_INFO(move_group_arm_node->get_logger(), "Pose B reached!");
 
   move_group_arm.setNamedTarget("home");
   move_group_arm.move();
+  RCLCPP_INFO(move_group_arm_node->get_logger(), "Pose C reached!");
 
   rclcpp::shutdown();
   return 0;
