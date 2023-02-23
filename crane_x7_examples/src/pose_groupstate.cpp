@@ -39,6 +39,7 @@ int main(int argc, char ** argv)
   move_group_arm.setMaxVelocityScalingFactor(1.0);  // Set 0.0 ~ 1.0
   move_group_arm.setMaxAccelerationScalingFactor(1.0);  // Set 0.0 ~ 1.0
 
+  sleep(12);
   move_group_arm.setNamedTarget("home");
   move_group_arm.move();
   RCLCPP_INFO(move_group_arm_node->get_logger(), "Pose A reached!");
