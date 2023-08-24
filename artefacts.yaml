@@ -2,10 +2,11 @@ version: 0.1.0
 project: crane-x7
 
 jobs:
-  test:
+  tests:
+    type: test
     runtime:
       framework: ros2:humble
-      simulator: ''
+      simulator: gazebo:fortress
     scenarios:
       defaults: {}
       settings:
@@ -13,4 +14,3 @@ jobs:
           ros_testfile: crane_x7_tests/launch/test_gripper.launch.py
             #- name: pick_and_place
             #ros2_testfile: crane_x7_tests/launch/test_pick_and_place.launch.py
-    type: test

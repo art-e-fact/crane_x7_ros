@@ -1,0 +1,35 @@
+name: full-ci
+
+on:
+  push:
+    paths-ignore:
+    - '**.md'
+  pull_request:
+    paths-ignore:
+    - '**.md'
+  workflow_dispatch:
+
+env:
+  UPSTREAM_WORKSPACE: .ci.rosinstall
+
+jobs:
+  industrial_ci:
+    strategy:
+      matrix:
+        env:
+          - { ROS_DISTRO: humble, ROS_REPO: ros }
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: "ros-industrial/industrial_ci@master"
+        env: ${{ matrix.env }}
+
+  artefacts-ci:
+    needs: ros2-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: art-e-fact/action-artefacts-ci@main
+        with:
+          artefacts-api-key: ${{ secrets.ARTEFACTS_API_KEY }}
+          job-name: tests
