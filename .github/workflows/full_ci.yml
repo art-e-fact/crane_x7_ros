@@ -25,7 +25,7 @@ jobs:
         env: ${{ matrix.env }}
 
   artefacts-ci:
-    needs: ros2-test
+    needs: industrial_ci
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
