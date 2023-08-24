@@ -3,6 +3,7 @@
 # crane_x7_ros
 
 [![industrial_ci](https://github.com/rt-net/crane_x7_ros/actions/workflows/industrial_ci.yml/badge.svg?branch=ros2)](https://github.com/rt-net/crane_x7_ros/actions/workflows/industrial_ci.yml)
+[![artefacts_ci](https://ui.artefacts.com/api/crane-x7/badges/test.svg)](https://ui.artefacts.com/crane-x7/tests)
 
 ROS 2 package suite of CRANE-X7.
 
