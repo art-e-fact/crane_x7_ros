@@ -14,6 +14,6 @@ jobs:
     scenarios:
       settings:
         - name: gripper
-          ros_testfile: crane_x7_tests/launch/test_gripper.launch.py
+          ros_testfile: crane_x7_tests/launch/gripper.launch.py
             #- name: pick_and_place
             #ros2_testfile: crane_x7_tests/launch/test_pick_and_place.launch.py
