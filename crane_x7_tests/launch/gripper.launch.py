@@ -1,6 +1,7 @@
 import os
 import sys
 from datetime import datetime
+from time import sleep
 
 import pytest
 import unittest
@@ -61,10 +62,10 @@ def generate_test_description():
     return LaunchDescription(
         [
             sim,
-            spawn_cam,
+            TimerAction(period=5.0, actions=[spawn_cam]),
             TimerAction(period=10.0, actions=[controller]),
             bridge,
-            bag_recorder,
+            TimerAction(period=8.0, actions=[bag_recorder]),
             launch_testing.actions.ReadyToTest(),
         ]
     ), {"controller": controller, "rosbag_filepath": rosbag_filepath}
@@ -81,6 +82,7 @@ class TestGripper(unittest.TestCase):
         #    cm.assertInStdout("Plan and Execute request complete!")
         #    cm.assertInStdout("Loop 2")
         proc_output.assertWaitFor("Plan and Execute request complete!", timeout=180)
+        sleep(5)
 
 
 @launch_testing.post_shutdown_test()
