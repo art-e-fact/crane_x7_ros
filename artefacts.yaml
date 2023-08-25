@@ -12,7 +12,6 @@ jobs:
         build:
           dockerfile: ./Dockerfile
     scenarios:
-      defaults: {}
       settings:
         - name: gripper
           ros_testfile: crane_x7_tests/launch/test_gripper.launch.py
