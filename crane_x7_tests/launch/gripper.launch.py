@@ -62,7 +62,7 @@ def generate_test_description():
     return LaunchDescription(
         [
             sim,
-            TimerAction(period=5.0, actions=[spawn_cam]),
+            #TimerAction(period=5.0, actions=[spawn_cam]),
             TimerAction(period=10.0, actions=[controller]),
             bridge,
             TimerAction(period=8.0, actions=[bag_recorder]),
@@ -103,7 +103,7 @@ class TestAfterShutdown(unittest.TestCase):
             rosbag_filepath,
         ]
         args = [
-            "python",
+            "python3",
             "./ros2bag2video.py",
             "--topic",
             "/observation_camera/image",
