@@ -7,7 +7,7 @@ WORKDIR /ws/src
 RUN apt update
 RUN apt install -y apt-utils python3-opencv
 RUN git clone -b ros2 https://github.com/rt-net/crane_x7_description.git
-#RUN git clone -b humble https://github.com/ros-controls/gz_ros2_control.git
+RUN git clone -b humble https://github.com/ros-controls/gz_ros2_control.git
 
 RUN rosdep install --from-paths . --ignore-src -r -y
 
