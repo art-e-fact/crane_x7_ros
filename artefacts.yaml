@@ -7,6 +7,10 @@ jobs:
     runtime:
       framework: ros2:humble
       simulator: gazebo:fortress
+    package:
+      docker:
+        build:
+          dockerfile: ./Dockerfile
     scenarios:
       defaults: {}
       settings:
