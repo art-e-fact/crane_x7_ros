@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+<model name="camera">
+<static>true</static>
+<pose>0.0 0 3.0 0 1.5708 0</pose>
+<link name="sensor_link">
+<sensor name='camera_rgb' type='camera'>
+  <pose>0 0 0 0 -0 0</pose>
+  <topic>observation_camera/image</topic>
+  <update_rate>10</update_rate>
+  <enable_metrics>true</enable_metrics>
+  <camera name='__default__'>
+    <pose>0 0 0 0 -0 0</pose>
+    <horizontal_fov>1.0469999999999999</horizontal_fov>
+    <image>
+      <width>320</width>
+      <height>240</height>
+      <format>RGB_INT8</format>
+      <anti_aliasing>4</anti_aliasing>
+    </image>
+    <camera_info_topic>__default__</camera_info_topic>
+    <trigger_topic></trigger_topic>
+    <triggered>false</triggered>
+    <clip>
+      <near>0.10000000000000001</near>
+      <far>100</far>
+    </clip>
+    <save enabled='false'>
+      <path>__default__</path>
+    </save>
+    <visibility_mask>4294967295</visibility_mask>
+    <noise>
+      <type>none</type>
+      <mean>0</mean>
+      <stddev>0</stddev>
+    </noise>
+    <distortion>
+      <k1>0</k1>
+      <k2>0</k2>
+      <k3>0</k3>
+      <p1>0</p1>
+      <p2>0</p2>
+      <center>0.5 0.5</center>
+    </distortion>
+    <lens>
+      <scale_to_hfov>true</scale_to_hfov>
+      <cutoff_angle>1.5708</cutoff_angle>
+      <env_texture_size>256</env_texture_size>
+    </lens>
+    <optical_frame_id></optical_frame_id>
+  </camera>
+</sensor>
+</link>
+</model>
+</sdf>

@@ -15,7 +15,6 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 # import ros2bag2video
 import subprocess
-import sys
 
 
 @pytest.mark.launch_test
@@ -33,6 +32,12 @@ def generate_test_description():
         "-o",
         rosbag_filepath,
     ]
+    spawn_cam = Node(
+     package='ros_ign_gazebo',
+     executable='create',
+     output='screen',
+     arguments=["-file", "./cam.sdf"]
+    )
     bag_recorder = ExecuteProcess(cmd=rosbag_cmd, output="screen", env=proc_env)
     sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -56,9 +61,10 @@ def generate_test_description():
     return LaunchDescription(
         [
             sim,
+            spawn_cam,
             TimerAction(period=10.0, actions=[controller]),
-            # bridge,
-            # bag_recorder,
+            bridge,
+            bag_recorder,
             launch_testing.actions.ReadyToTest(),
         ]
     ), {"controller": controller, "rosbag_filepath": rosbag_filepath}
