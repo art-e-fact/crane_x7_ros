@@ -28,7 +28,7 @@ jobs:
     needs: industrial_ci
     runs-on: ubuntu-latest
     env:
-      - ARTEFACTS_API_URL: http://ui.artefacts.com/api
+      ARTEFACTS_API_URL: http://ui.artefacts.com/api
     steps:
       - uses: actions/checkout@v3
       - uses: art-e-fact/action-artefacts-ci@main
