@@ -7,16 +7,14 @@ WORKDIR /ws/src
 RUN apt update
 RUN apt install -y apt-utils python3-opencv
 RUN git clone -b ros2 https://github.com/rt-net/crane_x7_description.git
-RUN git clone -b humble https://github.com/ros-controls/gz_ros2_control.git
 
 RUN rosdep install --from-paths . --ignore-src -r -y
 
-#RUN rosdep install --from-paths . --ignore-src -r -y
 #RUN echo "deb [trusted=yes] https://raw.githubusercontent.com/moveit/moveit2_packages/jammy-humble/ ./" | sudo tee /etc/apt/sources.list.d/moveit_moveit2_packages.list
 #RUN echo "yaml https://raw.githubusercontent.com/moveit/moveit2_packages/jammy-humble/local.yaml humble" | sudo tee /etc/ros/rosdep/sources.list.d/1-moveit_moveit2_packages.list
-# ROS dependencies
+## ROS dependencies
 #RUN apt update
-
+#
 #RUN apt install ros-humble-moveit-py
 
 COPY . crane_x7_ros
