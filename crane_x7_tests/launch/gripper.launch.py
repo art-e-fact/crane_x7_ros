@@ -29,8 +29,7 @@ def generate_test_description():
         "ros2",
         "bag",
         "record",
-        "/observation_camera/image",
-        "-o",
+        "-a",
         rosbag_filepath,
     ]
     spawn_cam = Node(
