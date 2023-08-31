@@ -30,7 +30,9 @@ def generate_test_description():
         "bag",
         "record",
         "-a",
+        "-o",
         rosbag_filepath,
+
     ]
     spawn_cam = Node(
      package='ros_ign_gazebo',
