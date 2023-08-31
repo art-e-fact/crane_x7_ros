@@ -10,12 +10,6 @@ RUN git clone -b ros2 https://github.com/rt-net/crane_x7_description.git
 
 RUN rosdep install --from-paths . --ignore-src -r -y
 
-#RUN echo "deb [trusted=yes] https://raw.githubusercontent.com/moveit/moveit2_packages/jammy-humble/ ./" | sudo tee /etc/apt/sources.list.d/moveit_moveit2_packages.list
-#RUN echo "yaml https://raw.githubusercontent.com/moveit/moveit2_packages/jammy-humble/local.yaml humble" | sudo tee /etc/ros/rosdep/sources.list.d/1-moveit_moveit2_packages.list
-## ROS dependencies
-#RUN apt update
-#
-#RUN apt install ros-humble-moveit-py
 
 COPY . crane_x7_ros
 
