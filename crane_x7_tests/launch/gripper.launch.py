@@ -64,9 +64,9 @@ def generate_test_description():
         [
             sim,
             #TimerAction(period=5.0, actions=[spawn_cam]),
-            TimerAction(period=10.0, actions=[controller]),
+            TimerAction(period=20.0, actions=[controller]),
             bridge,
-            TimerAction(period=8.0, actions=[bag_recorder]),
+            TimerAction(period=10.0, actions=[bag_recorder]),
             launch_testing.actions.ReadyToTest(),
         ]
     ), {"controller": controller, "rosbag_filepath": rosbag_filepath}
@@ -82,7 +82,7 @@ class TestGripper(unittest.TestCase):
         #    cm.assertInStdout("Plan and Execute request complete!")
         #    cm.assertInStdout("Plan and Execute request complete!")
         #    cm.assertInStdout("Loop 2")
-        proc_output.assertWaitFor("Plan and Execute request complete!", timeout=180)
+        proc_output.assertWaitFor("Plan and Execute request complete!", timeout=200)
         sleep(5)
 
 

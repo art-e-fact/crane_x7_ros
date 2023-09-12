@@ -48,6 +48,7 @@ def generate_launch_description():
         arguments=['-topic', '/robot_description',
                    '-name', 'crane_x7',
                    '-z', '1.015',
+                    '--headless-rendering', "-s"
                    '-allow_renaming', 'true'],
     )
 
