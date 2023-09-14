@@ -15,7 +15,7 @@ COPY . crane_x7_ros
 
 RUN rosdep install --from-paths . --ignore-src -r -y
 # Source ROS version and build
-RUN . /opt/ros/humble/setup.sh && colcon build --symlink-install
+RUN . /opt/ros/humble/setup.sh && colcon build --symlink-install --executor parallel
 
 
 WORKDIR /ws/src/crane_x7_ros
