@@ -2,7 +2,7 @@ version: 0.1.0
 project: crane-x7
 
 jobs:
-  tests:
+  examples:
     type: test
     runtime:
       framework: ros2:humble
