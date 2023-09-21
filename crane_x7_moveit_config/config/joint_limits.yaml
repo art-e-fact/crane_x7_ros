@@ -2,8 +2,8 @@
 # Specific joint properties can be changed with the keys [max_position, min_position, max_velocity, max_acceleration]
 # Joint limits can be turned off with [has_velocity_limits, has_acceleration_limits]
 
-default_velocity_scaling_factor: 1.0
-default_acceleration_scaling_factor: 1.0
+default_velocity_scaling_factor: 0.1
+default_acceleration_scaling_factor: 0.1
 
 joint_limits:
   crane_x7_gripper_finger_a_joint:
@@ -12,6 +12,11 @@ joint_limits:
     max_velocity: 4.8
     max_acceleration: 4.4
   crane_x7_gripper_finger_b_joint:
+    has_velocity_limits: true
+    has_acceleration_limits: true
+    max_velocity: 4.8
+    max_acceleration: 4.4
+  crane_x7_gripper_finger_b_joint_mimic:
     has_velocity_limits: true
     has_acceleration_limits: true
     max_velocity: 4.8
