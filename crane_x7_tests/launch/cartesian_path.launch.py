@@ -63,14 +63,27 @@ def generate_test_description():
         launch_arguments={"use_sim_time": "true", "example": "cartesian_path"}.items(),
     )
 
-    joint_values = Node(
-        package="crane_x7_tests",
-        executable="joint_pose",
+
+    crane_x7_pose_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        arguments=[
+            '/world/default/dynamic_pose/info@geometry_msgs/msg/PoseArray@ignition.msgs.Pose_V'
+
+        ],
+        output="screen",
     )
+
+
+    # joint_values = Node(
+    #     package="crane_x7_tests",
+    #     executable="joint_pose",
+    # )
 
     return LaunchDescription(
         [
             sim,
+            crane_x7_pose_bridge,
             TimerAction(period=10.0, actions=[demo]),
             launch_testing.actions.ReadyToTest(),
         ]
@@ -103,15 +116,19 @@ class TestPositionCheck(unittest.TestCase):
         position_y_array = np.array(position_y_list)
 
         # Plot the points
-        plt.plot(position_x_array, position_y_array)
-        plt.xlabel('X Position')
-        plt.ylabel('Y Position')
-        plt.title('Waypoints')
-        plt.grid(True)
-        plt.show()
-        
+        # plt.plot(position_x_array, position_y_array)
+        # plt.xlabel('X Position')
+        # plt.ylabel('Y Position')
+        # plt.title('Waypoints')
+        # plt.grid(True)
+        # plt.show()
+
     def test_joint_positions(self, proc_output):
         """
         Test case to see if box has moved, if the values are no longer equal it means that the block has shifted position
         """
-        pass
+
+        proc_output.assertWaitFor(
+        'Joint_Position: "[0.0, 0.0, -2.2, 0.06, 0.4, 0.48, 0.0, 0.0, 0.0]',
+        timeout=180,
+        )
