@@ -24,7 +24,6 @@ import re
 
 @pytest.mark.launch_test
 @launch_testing.markers.keep_alive
-
 def generate_test_description():
     proc_env = os.environ.copy()
     proc_env["PYTHONUNBUFFERED"] = "1"
@@ -55,20 +54,18 @@ def generate_test_description():
                 )
             ]
         ),
-        launch_arguments={
-            "use_sim_time": "true", 
-            "example": "pick_and_place"
-        }.items(),
+        launch_arguments={"use_sim_time": "true", "example": "pick_and_place"}.items(),
     )
 
-    
     return LaunchDescription(
         [
             sim,
-            TimerAction(period=15.0, actions=[demo]),  # Need to optimize period, if under 10 seconds will not run
+            TimerAction(
+                period=15.0, actions=[demo]
+            ),  # Need to optimize period, if under 10 seconds will not run
             launch_testing.actions.ReadyToTest(),
         ]
-    ), {"demo": demo, "sim":sim}
+    ), {"demo": demo, "sim": sim}
 
 
 def get_model_location(model_name):
@@ -91,7 +88,7 @@ def get_model_location(model_name):
 
         # Extract the individual numbers from the matched string
         numbers = re.findall(r"[\d.-]+", position)
-        
+
         if len(numbers) >= 3:
             x_variable = float(numbers[0])
             y_variable = float(numbers[1])
@@ -106,6 +103,7 @@ def get_model_location(model_name):
         print("No x, y, or z variables found in the text.")
 
     return x_variable, y_variable, z_variable
+
 
 class TestPickAndPlace(unittest.TestCase):
     def test_box_moved(self, proc_output):
@@ -134,6 +132,7 @@ class TestPickAndPlace(unittest.TestCase):
 
         # sleep(5)
         # subprocess.run(["pkill", "ign"])
+
 
 # @launch_testing.post_shutdown_test()
 # class TestAfterShutdown(unittest.TestCase):
