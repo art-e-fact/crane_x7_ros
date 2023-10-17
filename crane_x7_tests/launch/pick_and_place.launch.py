@@ -80,8 +80,6 @@ def get_model_location(model_name):
     result = subprocess.run(command, check=True, text=True, stdout=subprocess.PIPE)
     result_output = result.stdout
 
-    print(result_output)
-
     # Extract position data if it exists
     position_pattern = r"\[(.*?)\]"
 
@@ -98,9 +96,8 @@ def get_model_location(model_name):
             x_variable = float(numbers[0])
             y_variable = float(numbers[1])
             z_variable = float(numbers[2])
-            print(f"x box coordinate: {x_variable}")
-            print(f"y box coordinate: {y_variable}")
-            print(f"z box coordinate: {z_variable}")
+
+            print("x, y, and z variables found in the text.")
         else:
             x_variable = 0.0
             y_variable = 0.0
@@ -116,28 +113,24 @@ class TestPickAndPlace(unittest.TestCase):
         Test case to see if box has moved, if the values are no longer equal it means that the block has shifted position
         """
 
-        # proc_output.assertWaitFor("Node Is Ready", timeout=180)
-        decimal = 3
+        decimal = 2
         model_name = "wood_cube_5cm"
 
-        (
-            x_variable,
-            y_variable,
-            z_variable,
-        ) = get_model_location(model_name)
-
-        # proc_output.assertWaitFor("Plan and Execute request complete!", timeout=180)
-        sleep(40)
+        proc_output.assertWaitFor("Pick and Place Action done!", timeout=180)
 
         (
-            x_new_variable,
-            y_new_variable,
-            z_new_variable,
+            x_actual_location,
+            y_actual_location,
+            z_actual_location,
         ) = get_model_location(model_name)
 
-        self.assertNotEqual(x_variable, x_new_variable, decimal)
-        self.assertNotEqual(y_variable, y_new_variable, decimal)
-        self.assertNotEqual(z_variable, z_new_variable, decimal)
+        x_desired_location = 0.2
+        y_desired_location = 0.2
+        z_desired_location = 1.015
+
+        self.assertAlmostEqual(x_desired_location, x_actual_location, decimal)
+        self.assertAlmostEqual(y_desired_location, y_actual_location, decimal)
+        self.assertAlmostEqual(z_desired_location, z_actual_location, decimal)
 
         # sleep(5)
         # subprocess.run(["pkill", "ign"])
