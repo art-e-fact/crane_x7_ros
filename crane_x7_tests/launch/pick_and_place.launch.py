@@ -130,11 +130,4 @@ class TestPickAndPlace(unittest.TestCase):
         self.assertAlmostEqual(y_desired_location, y_actual_location, decimal)
         self.assertAlmostEqual(z_desired_location, z_actual_location, decimal)
 
-        # sleep(5)
-        # subprocess.run(["pkill", "ign"])
-
-
-# @launch_testing.post_shutdown_test()
-# class TestAfterShutdown(unittest.TestCase):
-#     def test_exit():
-#         subprocess.run(["pkill", "ign"])
+        sleep(5)

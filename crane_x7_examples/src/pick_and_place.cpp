@@ -133,8 +133,6 @@ int main(int argc, char ** argv)
   target_pose.position.y = 0.2;
   target_pose.position.z = 0.13;
 
-  RCLCPP_INFO(LOGGER, "\nX Desired Location:'%f',\nY Desired Location:'%f'\n", target_pose.position.x, target_pose.position.y);
-
   q.setRPY(angles::from_degrees(-180), angles::from_degrees(0), angles::from_degrees(-90));
   target_pose.orientation = tf2::toMsg(q);
   move_group_arm.setPoseTarget(target_pose);
