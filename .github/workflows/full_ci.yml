@@ -34,4 +34,4 @@ jobs:
       - uses: art-e-fact/action-artefacts-ci@main
         with:
           artefacts-api-key: ${{ secrets.ARTEFACTS_API_KEY }}
-          job-name: tests
+          job-name: examples
