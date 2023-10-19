@@ -132,6 +132,7 @@ int main(int argc, char ** argv)
   target_pose.position.x = 0.2;
   target_pose.position.y = 0.2;
   target_pose.position.z = 0.13;
+
   q.setRPY(angles::from_degrees(-180), angles::from_degrees(0), angles::from_degrees(-90));
   target_pose.orientation = tf2::toMsg(q);
   move_group_arm.setPoseTarget(target_pose);
@@ -162,6 +163,8 @@ int main(int argc, char ** argv)
   gripper_joint_values[0] = GRIPPER_DEFAULT;
   move_group_gripper.setJointValueTarget(gripper_joint_values);
   move_group_gripper.move();
+
+  RCLCPP_INFO(LOGGER, "Pick and Place Action done!");
 
   rclcpp::shutdown();
   return 0;
