@@ -20,6 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            "joint_pose = crane_x7_tests.joint_state_subscriber:main"
         ],
     },
 )
+
