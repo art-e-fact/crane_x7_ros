@@ -25,7 +25,10 @@ from launch_testing.asserts import assertSequentialStdout
 from sensor_msgs.msg import JointState
 import numpy as np
 import matplotlib.pyplot as plt
+import rclpy
 
+from geometry_msgs.msg import PoseArray
+import time
 
 
 @pytest.mark.launch_test
@@ -89,8 +92,33 @@ def generate_test_description():
         ]
     ), {"demo": demo, "sim": sim}
 
-
 class TestPositionCheck(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        rclpy.init()
+
+    @classmethod
+    def tearDownClass(cls):
+        rclpy.shutdown()   
+
+    def setUp(self):
+        self.node = rclpy.create_node("test_node")
+
+    # def test_hz(self):
+    #     msgs_rx = []
+
+    #     sub = self.node.create_subscription(TFMessage, "tf", lambda msg: msgs_rx.append(msg), 10)
+
+    #     try:
+    #         end_time = time.time() + 5
+
+    #         while time.time() < end_time:
+    #             rclpy.spin_once(self.node, timeout_sec=0.1)
+    #             print("\nhello\n")
+    #     finally:
+    #         self.node.destroy_subscription(sub)
+
     def crane_x7_cartesian_path(self):
 
         num_of_waypoints = 30
@@ -115,20 +143,58 @@ class TestPositionCheck(unittest.TestCase):
         position_x_array = np.array(position_x_list)
         position_y_array = np.array(position_y_list)
 
+        return position_x_array, position_y_array
+
+    def plot(self, x_values_expected, y_values_expected, x_values_sim, y_values_sim):
+
         # Plot the points
-        # plt.plot(position_x_array, position_y_array)
-        # plt.xlabel('X Position')
-        # plt.ylabel('Y Position')
-        # plt.title('Waypoints')
-        # plt.grid(True)
-        # plt.show()
+        plt.plot(x_values_expected, y_values_expected, label='Expected Path')
+        plt.plot(x_values_sim, y_values_sim, label='Sim Path')
+
+        plt.xlabel('X Position')
+        plt.ylabel('Y Position')
+        plt.title('Sim Vs Expected Cartesian Path Trajectory')
+        plt.legend()
+
+        plt.grid(True)
+        plt.show()
+
+    def grab_ee_pose(self, gripper_position):
+
+        self.gripper_x_pose_list.append(gripper_position.x)
+        self.gripper_y_pose_list.append(gripper_position.y)
 
     def test_joint_positions(self, proc_output):
         """
         Test case to see if box has moved, if the values are no longer equal it means that the block has shifted position
         """
 
-        proc_output.assertWaitFor(
-        'Joint_Position: "[0.0, 0.0, -2.2, 0.06, 0.4, 0.48, 0.0, 0.0, 0.0]',
-        timeout=180,
-        )
+        self.gripper_x_pose_list = []
+        self.gripper_y_pose_list = []
+
+        gripper_index_value = -3
+
+        x_values_expected, y_values_expected = self.crane_x7_cartesian_path()
+
+        proc_output.assertWaitFor('Goal request accepted!', timeout=180)
+        proc_output.assertWaitFor('Goal request accepted!', timeout=180)
+        proc_output.assertWaitFor('Goal request accepted!', timeout=180)
+
+        sub = self.node.create_subscription(PoseArray, "/world/default/dynamic_pose/info", lambda msg: self.grab_ee_pose(msg.poses[gripper_index_value].position), 10)
+        
+        rclpy.spin_once(self.node, timeout_sec=0.1)
+
+        try:
+            end_time = time.time() + 60
+
+            while time.time() < end_time:
+                rclpy.spin_once(self.node, timeout_sec=0.1)
+
+        finally:
+            self.node.destroy_subscription(sub)
+
+        x_values_sim = np.array(self.gripper_x_pose_list)
+        y_values_sim = np.array(self.gripper_y_pose_list)
+
+        self.plot(x_values_expected, y_values_expected, x_values_sim, y_values_sim)
+
