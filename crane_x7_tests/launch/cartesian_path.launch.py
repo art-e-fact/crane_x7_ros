@@ -1,5 +1,4 @@
 import os
-import sys
 from datetime import datetime
 from time import sleep
 
@@ -20,9 +19,6 @@ import launch_testing.markers
 
 import subprocess
 
-from launch_testing.asserts import assertSequentialStdout
-
-from sensor_msgs.msg import JointState
 import numpy as np
 import matplotlib.pyplot as plt
 import rclpy
@@ -71,17 +67,10 @@ def generate_test_description():
         package="ros_gz_bridge",
         executable="parameter_bridge",
         arguments=[
-            '/world/default/dynamic_pose/info@geometry_msgs/msg/PoseArray@ignition.msgs.Pose_V'
-
+            "/world/default/dynamic_pose/info@geometry_msgs/msg/PoseArray@ignition.msgs.Pose_V"
         ],
         output="screen",
     )
-
-
-    # joint_values = Node(
-    #     package="crane_x7_tests",
-    #     executable="joint_pose",
-    # )
 
     return LaunchDescription(
         [
@@ -92,35 +81,77 @@ def generate_test_description():
         ]
     ), {"demo": demo, "sim": sim}
 
-class TestPositionCheck(unittest.TestCase):
 
+class TestPositionCheck(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         rclpy.init()
 
     @classmethod
     def tearDownClass(cls):
-        rclpy.shutdown()   
+        rclpy.shutdown()
 
     def setUp(self):
         self.node = rclpy.create_node("test_node")
 
-    # def test_hz(self):
-    #     msgs_rx = []
+    def get_ee_pose_index(self):
+        # Command to run in the background
+        command = "ign topic -t /world/default/dynamic_pose/info -e"
 
-    #     sub = self.node.create_subscription(TFMessage, "tf", lambda msg: msgs_rx.append(msg), 10)
+        # Start the subprocess and redirect stdout and stderr to pipes
+        process = subprocess.Popen(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+        )
 
-    #     try:
-    #         end_time = time.time() + 5
+        # Initialize flags to track whether the target parts have been found
+        found_pose = False
+        found_name = False
 
-    #         while time.time() < end_time:
-    #             rclpy.spin_once(self.node, timeout_sec=0.1)
-    #             print("\nhello\n")
-    #     finally:
-    #         self.node.destroy_subscription(sub)
+        # Initialize the variable to store the output
+        output_call = ""
+
+        # Initialize a counter for the word "pose"
+        pose_count = 0
+
+        while True:
+            # Read a line from the stdout (non-blocking)
+            output_line = process.stdout.readline()
+
+            # Check if the process has finished
+            if process.poll() is not None and not output_line:
+                break
+
+            if output_line:
+                # Append the output_line to the variable
+                output_call += output_line
+
+                # Count the number of times "pose" appears in the output_line
+                pose_count += output_line.count("pose")
+
+                # Check if 'pose {' is in the output_line
+                if "pose {" in output_line:
+                    found_pose = True
+
+                # Check if 'name: "crane_x7_gripper_base_link"' is in the output_line
+                if 'name: "crane_x7_gripper_base_link"' in output_line:
+                    found_name = True
+
+                # Check if both parts have been found
+                if found_pose and found_name:
+                    break
+
+        # Close the subprocess
+        process.kill()
+
+        pose_count = pose_count - 1
+
+        return pose_count
 
     def crane_x7_cartesian_path(self):
-
         num_of_waypoints = 30
         repeat = 3
         radius = 0.1
@@ -146,21 +177,19 @@ class TestPositionCheck(unittest.TestCase):
         return position_x_array, position_y_array
 
     def plot(self, x_values_expected, y_values_expected, x_values_sim, y_values_sim):
-
         # Plot the points
-        plt.plot(x_values_expected, y_values_expected, label='Expected Path')
-        plt.plot(x_values_sim, y_values_sim, label='Sim Path')
+        plt.plot(x_values_expected, y_values_expected, label="Expected Path")
+        plt.plot(x_values_sim, y_values_sim, label="Sim Path")
 
-        plt.xlabel('X Position')
-        plt.ylabel('Y Position')
-        plt.title('Sim Vs Expected Cartesian Path Trajectory')
+        plt.xlabel("X Position")
+        plt.ylabel("Y Position")
+        plt.title("Sim Vs Expected Cartesian Path Trajectory")
         plt.legend()
 
         plt.grid(True)
         plt.show()
 
-    def grab_ee_pose(self, gripper_position):
-
+    def get_ee_pose(self, gripper_position):
         self.gripper_x_pose_list.append(gripper_position.x)
         self.gripper_y_pose_list.append(gripper_position.y)
 
@@ -172,23 +201,36 @@ class TestPositionCheck(unittest.TestCase):
         self.gripper_x_pose_list = []
         self.gripper_y_pose_list = []
 
-        gripper_index_value = -3
-
         x_values_expected, y_values_expected = self.crane_x7_cartesian_path()
 
-        proc_output.assertWaitFor('Goal request accepted!', timeout=180)
-        proc_output.assertWaitFor('Goal request accepted!', timeout=180)
-        proc_output.assertWaitFor('Goal request accepted!', timeout=180)
+        proc_output.assertWaitFor("Goal request accepted!", timeout=180)
 
-        sub = self.node.create_subscription(PoseArray, "/world/default/dynamic_pose/info", lambda msg: self.grab_ee_pose(msg.poses[gripper_index_value].position), 10)
-        
+        pose_index = self.get_ee_pose_index()
+
+        proc_output.assertWaitFor("Cartesian Path Beginning", timeout=180)
+
+        sub = self.node.create_subscription(
+            PoseArray,
+            "/world/default/dynamic_pose/info",
+            lambda msg: self.get_ee_pose(msg.poses[pose_index].position),
+            10,
+        )
+
         rclpy.spin_once(self.node, timeout_sec=0.1)
 
         try:
-            end_time = time.time() + 60
+
+            # while True:
+            #     rclpy.spin_once(self.node, timeout_sec=0.1)
+
+            #     if proc_output.assertWaitFor("Cartesian Path Beginning", timeout=180):
+            #         break
+
+            end_time = time.time() + 60  # Need to fix time
 
             while time.time() < end_time:
                 rclpy.spin_once(self.node, timeout_sec=0.1)
+                # Need to fix the amount of data saved
 
         finally:
             self.node.destroy_subscription(sub)
@@ -197,4 +239,3 @@ class TestPositionCheck(unittest.TestCase):
         y_values_sim = np.array(self.gripper_y_pose_list)
 
         self.plot(x_values_expected, y_values_expected, x_values_sim, y_values_sim)
-
