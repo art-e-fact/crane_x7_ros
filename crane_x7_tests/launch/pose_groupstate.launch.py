@@ -7,24 +7,19 @@ import pytest
 import unittest
 import launch_testing
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess, TimerAction
-from launch_ros.actions import Node
+from launch.actions import TimerAction
 
-from ament_index_python.packages import get_package_share_directory
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import PathJoinSubstitution
 import launch_testing.markers
-
-import subprocess
-
-from launch_testing.asserts import assertSequentialStdout
+import rclpy
 
 from sensor_msgs.msg import JointState
 
-# from std_msgs.msg import String
+import time
 
 
 @pytest.mark.launch_test
@@ -62,32 +57,68 @@ def generate_test_description():
         launch_arguments={"use_sim_time": "true", "example": "pose_groupstate"}.items(),
     )
 
-    joint_values = Node(
-        package="crane_x7_tests",
-        executable="joint_pose",
-    )
-
     return LaunchDescription(
         [
             sim,
             TimerAction(period=10.0, actions=[demo]),
-            joint_values,
             launch_testing.actions.ReadyToTest(),
         ]
     ), {"demo": demo, "sim": sim}
 
 
 class TestPositionCheck(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        rclpy.init()
+
+    @classmethod
+    def tearDownClass(cls):
+        rclpy.shutdown()
+
+    def setUp(self):
+        self.node = rclpy.create_node("test_node")
+
+    def get_joints(self, joint_position):
+        """
+        callback storing joint state positions
+        """
+        self.rounded_joint_values = []
+        decimal_place = 2
+        for i in range(len(joint_position)):
+            rounded_joint = round(joint_position[i], decimal_place)
+
+            if rounded_joint == -0.0:
+                rounded_joint = 0.0
+
+            self.rounded_joint_values.append(rounded_joint)
+
     def test_joint_positions(self, proc_output):
         """
-        Test case to see if box has moved, if the values are no longer equal it means that the block has shifted position
+        Test case to see if the final joint groupstate is in the home position
         """
 
-        proc_output.assertWaitFor(
-            'Joint_Position: "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]',
-            timeout=180,
+        joint_position_home = [0.0, 0.0, -2.2, 0.06, 0.4, 0.48, 0.0, 0.0, 0.0]
+
+        sub = self.node.create_subscription(
+            JointState,
+            "/joint_states",
+            lambda msg: self.get_joints(msg.position),
+            10,
         )
-        proc_output.assertWaitFor(
-            'Joint_Position: "[0.0, 0.0, -2.2, 0.06, 0.4, 0.48, 0.0, 0.0, 0.0]',
-            timeout=180,
+
+        rclpy.spin_once(self.node, timeout_sec=0.1)
+
+        try:
+            end_time = time.time() + 30  # Need to fix time
+
+            while time.time() < end_time:
+                rclpy.spin_once(self.node, timeout_sec=0.1)
+
+        finally:
+            self.node.destroy_subscription(sub)
+
+        decimal = 2
+
+        self.assertAlmostEqual(
+            self.rounded_joint_values[2], joint_position_home[2], decimal
         )
