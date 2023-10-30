@@ -103,7 +103,6 @@ int main(int argc, char ** argv)
   // SRDFに定義されている"home"の姿勢にする
   move_group_arm.setNamedTarget("home");
 
-  RCLCPP_INFO(LOGGER, "Pick and Place Action done!");
   RCLCPP_INFO(LOGGER, "Cartesian Path Done");
 
   move_group_arm.move();
