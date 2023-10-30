@@ -62,7 +62,6 @@ def generate_test_description():
         launch_arguments={"use_sim_time": "true", "example": "cartesian_path"}.items(),
     )
 
-
     crane_x7_pose_bridge = Node(
         package="ros_gz_bridge",
         executable="parameter_bridge",
@@ -95,6 +94,9 @@ class TestPositionCheck(unittest.TestCase):
         self.node = rclpy.create_node("test_node")
 
     def get_ee_pose_index(self):
+        """
+        gazebo igntion subprocess call to get the pose ee link as represented in a simulated world and return the index of the respective link
+        """
         # Command to run in the background
         command = "ign topic -t /world/default/dynamic_pose/info -e"
 
@@ -152,6 +154,9 @@ class TestPositionCheck(unittest.TestCase):
         return pose_count
 
     def crane_x7_cartesian_path(self):
+        """
+        Stores the cartesian x and y coordinates of the crane x7 ee as described by the cartesian_path example
+        """
         num_of_waypoints = 30
         repeat = 3
         radius = 0.1
@@ -177,7 +182,9 @@ class TestPositionCheck(unittest.TestCase):
         return position_x_array, position_y_array
 
     def plot(self, x_values_expected, y_values_expected, x_values_sim, y_values_sim):
-        # Plot the points
+        """
+        Plots the expected x and y values as well as the actual x and y values of crane_x7 ee for comparison
+        """
         plt.plot(x_values_expected, y_values_expected, label="Expected Path")
         plt.plot(x_values_sim, y_values_sim, label="Sim Path")
 
@@ -190,13 +197,20 @@ class TestPositionCheck(unittest.TestCase):
         plt.show()
 
     def get_ee_pose(self, gripper_position):
+        """
+        Subscriber callback that appends ee x and y coordinate position in a world frame to a list
+        """
+
         self.gripper_x_pose_list.append(gripper_position.x)
         self.gripper_y_pose_list.append(gripper_position.y)
+        # print(self.gripper_x_pose_list)
 
-    def test_joint_positions(self, proc_output):
+    def test_ee_positions(self, proc_output):
         """
-        Test case to see if box has moved, if the values are no longer equal it means that the block has shifted position
+        Test case to see if End Effector returns to home position after completing 2 rotations
         """
+
+        home_x_position = 0.16
 
         self.gripper_x_pose_list = []
         self.gripper_y_pose_list = []
@@ -207,8 +221,6 @@ class TestPositionCheck(unittest.TestCase):
 
         pose_index = self.get_ee_pose_index()
 
-        proc_output.assertWaitFor("Cartesian Path Beginning", timeout=180)
-
         sub = self.node.create_subscription(
             PoseArray,
             "/world/default/dynamic_pose/info",
@@ -216,21 +228,21 @@ class TestPositionCheck(unittest.TestCase):
             10,
         )
 
-        rclpy.spin_once(self.node, timeout_sec=0.1)
+        proc_output.assertWaitFor("Cartesian Path Beginning", timeout=180)
 
         try:
-
-            # while True:
-            #     rclpy.spin_once(self.node, timeout_sec=0.1)
-
-            #     if proc_output.assertWaitFor("Cartesian Path Beginning", timeout=180):
-            #         break
-
-            end_time = time.time() + 60  # Need to fix time
+            end_time = time.time() + 20  # Need to fix time
 
             while time.time() < end_time:
                 rclpy.spin_once(self.node, timeout_sec=0.1)
+
                 # Need to fix the amount of data saved
+
+                # if proc_output.assertWaitFor("Cartesian Path Done", timeout=180) == None:
+                #     break
+
+            # while proc_output.assertWaitFor("Cartesian Path Done", timeout=180) != None:
+            #     rclpy.spin_once(self.node, timeout_sec=0.1)
 
         finally:
             self.node.destroy_subscription(sub)
@@ -238,4 +250,7 @@ class TestPositionCheck(unittest.TestCase):
         x_values_sim = np.array(self.gripper_x_pose_list)
         y_values_sim = np.array(self.gripper_y_pose_list)
 
+        decimal = 2
+
+        self.assertAlmostEqual(home_x_position, x_values_sim[-1], decimal)
         self.plot(x_values_expected, y_values_expected, x_values_sim, y_values_sim)
