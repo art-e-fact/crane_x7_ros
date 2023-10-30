@@ -95,10 +95,17 @@ int main(int argc, char ** argv)
   move_group_arm.computeCartesianPath(
     waypoints, eef_step, jump_threshold,
     trajectory);
+
+  RCLCPP_INFO(LOGGER, "Cartesian Path Beginning");
+
   move_group_arm.execute(trajectory);
 
   // SRDFに定義されている"home"の姿勢にする
   move_group_arm.setNamedTarget("home");
+
+  RCLCPP_INFO(LOGGER, "Pick and Place Action done!");
+  RCLCPP_INFO(LOGGER, "Cartesian Path Done");
+
   move_group_arm.move();
 
   // ハンドを開く
